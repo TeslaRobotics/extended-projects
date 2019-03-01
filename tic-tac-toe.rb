@@ -1,14 +1,20 @@
 # this gem injects a color method to the string when it is displayed by console
 require 'colorize' 
 
+@level = 4
+
+def field(val, index)
+  (val.is_a? Integer) ? (index + 1 < 10 ? " #{val}" : val) : " #{val}"
+end
+
 def draw_cell(cell, index)
-  return (index + 1).to_s.white if cell == 0
-  return "@".yellow if cell == -1
-  return "X".blue if cell == 1
+  return field(index + 1, index).to_s.white if cell == 0
+  return field("O", index).yellow if cell == -1
+  return field("X", index).blue if cell == 1
 end
 
 def draw_tic(arr)
-  size_line = 13
+  size_line = 5 * @level + 1
   line, col = "-".green, "|".green
   border = line * size_line
   total = border
@@ -16,7 +22,7 @@ def draw_tic(arr)
   arr.each_with_index do |cell, index|
     content = draw_cell(cell, index)
     row = row + " #{content} #{col}"
-    if ((index + 1) % 3 == 0)
+    if ((index + 1) % @level == 0)
       total = total + "\n" + row + "\n" + border
       row = col
     end
@@ -33,16 +39,11 @@ def get_index(arr, val)
 end
 
 def who_wins?(g_state)
-  winConditions = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
+  board = [*0..@level**2 -1].each_slice(@level).to_a
+  winConditions = board + board.transpose
+  diag = (0..(board.count - 1)).collect { |i| board[i][i] }
+  diag2 = (0..(board.count - 1)).collect { |i| board.reverse[i][i] }.reverse
+  winConditions.push(diag, diag2)
 
   winConditions.each_with_index do |win, index|
     return 'x' if (win - get_index(g_state, 1)).empty?
@@ -54,6 +55,7 @@ def who_wins?(g_state)
 end
 
 def turn_machine(arr)
+  # next level => integrate IA
   positions = []
   arr.each_with_index do |num, index|
     positions.push(index) if num == 0
@@ -62,10 +64,11 @@ def turn_machine(arr)
 end
 
 def main
-  game_state = Array.new(9, 0)
+  game_state = Array.new(@level ** 2, 0)
   band = true
   winner = '-'
   while finish_game?(game_state)
+    system "clear"
     if band
       draw_tic game_state
       index = 0
@@ -73,7 +76,7 @@ def main
         puts "Elige una opcion:"
         index = gets.chomp.to_i
         break if  game_state[index - 1] == 0
-        puts index > 9 ? "Del 1 al nueve, no sabes leer xd".red : "Maldito bastardo elige bien".red
+        puts index > @level**2 ? "Del 1 al #{@level**2}, no sabes leer xd".red : "Maldito bastardo elige bien".red
       end
       game_state[index - 1] = 1
       band = false
