@@ -1,16 +1,16 @@
 # this gem injects a color method to the string when it is displayed by console
 require 'colorize' 
 
-@level = 4
+@level = 2
 
-def field(val, index)
+def draw_field(val, index)
   (val.is_a? Integer) ? (index + 1 < 10 ? " #{val}" : val) : " #{val}"
 end
 
 def draw_cell(cell, index)
-  return field(index + 1, index).to_s.white if cell == 0
-  return field("O", index).yellow if cell == -1
-  return field("X", index).blue if cell == 1
+  return draw_field(index + 1, index).to_s.white if cell == 0
+  return draw_field("O", index).yellow if cell == -1
+  return draw_field("X", index).blue if cell == 1
 end
 
 def draw_tic(arr)
@@ -64,34 +64,43 @@ def turn_machine(arr)
 end
 
 def main
-  game_state = Array.new(@level ** 2, 0)
-  band = true
-  winner = '-'
-  while finish_game?(game_state)
-    system "clear"
-    if band
-      draw_tic game_state
-      index = 0
-      loop do 
-        puts "Elige una opcion:"
-        index = gets.chomp.to_i
-        break if  game_state[index - 1] == 0
-        puts index > @level**2 ? "Del 1 al #{@level**2}, no sabes leer xd".red : "Maldito bastardo elige bien".red
+  while true
+    game_state = Array.new(@level ** 2, 0)
+    band = true
+    winner = '-'
+    while finish_game?(game_state)
+      system "clear"
+      puts "Level #{@level}"
+      if band
+        draw_tic game_state
+        index = 0
+        loop do 
+          puts "Elige una opcion:"
+          index = gets.chomp.to_i
+          break if  game_state[index - 1] == 0
+          puts index > @level**2 ? "Del 1 al #{@level**2}, no sabes leer xd".red : "Maldito bastardo elige bien".red
+        end
+        game_state[index - 1] = 1
+        band = false
+      else
+        game_state[turn_machine(game_state)] = -1 
+        band = true
       end
-      game_state[index - 1] = 1
-      band = false
-    else
-      game_state[turn_machine(game_state)] = -1 
-      band = true
+      winner = who_wins? game_state
+      break if winner != '-'
     end
-    winner = who_wins? game_state
-    break if winner != '-'
-  end
-  draw_tic game_state
-  if (winner == '-')
-    puts "Empataste"
-  else
-    puts winner == "x" ? "Ganaste tio, alegrate".cyan : "Acabas de perder con una maquina".red
+    draw_tic game_state
+    if (winner == '-')
+      puts "Empataste"
+    else
+      if winner == "x"
+        puts "Ganaste tio, alegrate".cyan
+        @level = @level + 1
+      else
+        puts "Acabas de perder con una maquina".red
+        break
+      end
+    end
   end
 end
 
