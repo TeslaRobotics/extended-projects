@@ -3,7 +3,7 @@ require 'colorize'
 
 def draw_cell(cell, index)
   return (index + 1).to_s.white if cell == 0
-  return "O".yellow if cell == -1
+  return "@".yellow if cell == -1
   return "X".blue if cell == 1
 end
 
@@ -28,28 +28,29 @@ def finish_game?(arr)
   arr.include?(0)
 end
 
+def get_index(arr, val)
+  arr.map.with_index { |num, index| index if num == val}.compact
+end
+
 def who_wins?(g_state)
+  winConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [2, 4, 7],
+    [3, 6, 9],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
-  reduced_game = []
-
-  reduced_game[0] = g_state[0] + g_state[1] + g_state[2]
-  reduced_game[1] = g_state[3] + g_state[4] + g_state[5]
-  reduced_game[2] = g_state[6] + g_state[7] + g_state[8]
-
-  reduced_game[3] = g_state[0] + g_state[3] + g_state[6]
-  reduced_game[4] = g_state[1] + g_state[4] + g_state[7]
-  reduced_game[5] = g_state[2] + g_state[5] + g_state[8]
-
-  reduced_game[6] = g_state[0] + g_state[4] + g_state[8]
-  reduced_game[7] = g_state[2] + g_state[4] + g_state[6]
-
-  if reduced_game.include?(3)
-    return 'x'
-  elsif reduced_game.include?(-3)
-    return 'o'
-  else 
-    return '-'
+  winConditions.each_with_index do |win, index|
+    return 'x' if (win - get_index(g_state, 1)).empty?
+    return 'o' if (win - get_index(g_state, -1)).empty?
   end
+
+  return '-'
+  
 end
 
 def turn_machine(arr)
@@ -71,8 +72,8 @@ def main
       loop do 
         puts "Elige una opcion:"
         index = gets.chomp.to_i
-        break if game_state[index - 1] == 0
-        puts "Maldito bastardo elige bien".red
+        break if  game_state[index - 1] == 0
+        puts index > 9 ? "Del 1 al nueve, no sabes leer xd".red : "Maldito bastardo elige bien".red
       end
       game_state[index - 1] = 1
       band = false
@@ -82,6 +83,7 @@ def main
     end
     winner = who_wins? game_state
     break if winner != '-'
+    system('cls')
   end
   draw_tic game_state
   if (winner == '-')
