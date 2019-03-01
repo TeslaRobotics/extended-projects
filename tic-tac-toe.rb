@@ -57,25 +57,37 @@ def turn_machine(arr)
   arr.each_with_index do |num, index|
     positions.push(index) if num == 0
   end
-  positions[rand(arr.count + 1)]
+  positions.sample
 end
 
 def main
   game_state = Array.new(9, 0)
   band = true
+  winner = '-'
   while finish_game?(game_state)
     if band
       draw_tic game_state
-      puts "Elige una opcion:"
-      index = gets.chomp.to_i
+      index = 0
+      loop do 
+        puts "Elige una opcion:"
+        index = gets.chomp.to_i
+        break if game_state[index - 1] == 0
+        puts "Maldito bastardo elige bien".red
+      end
       game_state[index - 1] = 1
       band = false
     else
       game_state[turn_machine(game_state)] = -1 
       band = true
     end
-
-    # comprobar si hay  un ganador 
+    winner = who_wins? game_state
+    break if winner != '-'
+  end
+  draw_tic game_state
+  if (winner == '-')
+    puts "Empataste"
+  else
+    puts winner == "x" ? "Ganaste tio, alegrate".cyan : "Acabas de perder con una maquina".red
   end
 end
 
