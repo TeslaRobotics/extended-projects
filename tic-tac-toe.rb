@@ -3,7 +3,7 @@ require 'colorize'
 
 def draw_cell(cell, index)
   return (index + 1).to_s.white if cell == 0
-  return "0".yellow if cell == -1
+  return "O".yellow if cell == -1
   return "X".blue if cell == 1
 end
 
@@ -25,7 +25,7 @@ def draw_tic(arr)
 end
 
 def finish_game?(arr)
-  (arr - [0, 1]).empty?
+  arr.include?(0)
 end
 
 def who_wins?(g_state)
@@ -52,11 +52,31 @@ def who_wins?(g_state)
   end
 end
 
+def turn_machine(arr)
+  positions = []
+  arr.each_with_index do |num, index|
+    positions.push(index) if num == 0
+  end
+  positions[rand(arr.count + 1)]
+end
+
 def main
   game_state = Array.new(9, 0)
-  draw_tic game_state
-  puts "Elegi una opcion"
-  puts who_wins?(game_state)
+  band = true
+  while finish_game?(game_state)
+    if band
+      draw_tic game_state
+      puts "Elige una opcion:"
+      index = gets.chomp.to_i
+      game_state[index - 1] = 1
+      band = false
+    else
+      game_state[turn_machine(game_state)] = -1 
+      band = true
+    end
+
+    # comprobar si hay  un ganador 
+  end
 end
 
 # execute program
