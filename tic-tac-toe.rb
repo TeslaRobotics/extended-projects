@@ -1,4 +1,32 @@
+# this gem injects a color method to the string when it is displayed by console
+require 'colorize' 
 
+def draw_cell(cell, index)
+  return (index + 1).to_s.white if cell == -1
+  return "0".yellow if cell == 0
+  return "X".blue if cell == 1
+end
+
+def draw_tic(arr)
+  size_line = 13
+  line, col = "-".green, "|".green
+  border = line * size_line
+  total = border
+  row = col
+  arr.each_with_index do |cell, index|
+    content = draw_cell(cell, index)
+    row = row + " #{content} #{col}"
+    if ((index + 1) % 3 == 0)
+      total = total + "\n" + row + "\n" + border
+      row = col
+    end
+  end
+  puts total
+end
+
+def finish_game?(arr)
+  (arr - [0, 1]).empty?
+end
 
 def who_wins?(g_state)
 
@@ -25,8 +53,10 @@ def who_wins?(g_state)
 end
 
 def main
-  game_state = [0,0,0,-1,-1,0,0,0,0]
-  who_wins?(game_state)
+  game_state = [0, 0, -1, 1, 1, 1, 0, -1, -1]
+  draw_tic game_state
+  puts who_wins?(game_state)
 end
 
+# execute program
 main
