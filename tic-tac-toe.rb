@@ -38,8 +38,8 @@ def who_wins?(g_state)
     [3, 4, 5],
     [6, 7, 8],
     [0, 3, 6],
-    [2, 4, 7],
-    [3, 6, 9],
+    [1, 4, 7],
+    [2, 5, 8],
     [0, 4, 8],
     [2, 4, 6],
   ];
@@ -83,7 +83,6 @@ def main
     end
     winner = who_wins? game_state
     break if winner != '-'
-    system('cls')
   end
   draw_tic game_state
   if (winner == '-')
