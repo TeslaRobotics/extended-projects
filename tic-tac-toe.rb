@@ -2,8 +2,8 @@
 require 'colorize' 
 
 def draw_cell(cell, index)
-  return (index + 1).to_s.white if cell == -1
-  return "0".yellow if cell == 0
+  return (index + 1).to_s.white if cell == 0
+  return "0".yellow if cell == -1
   return "X".blue if cell == 1
 end
 
@@ -53,8 +53,9 @@ def who_wins?(g_state)
 end
 
 def main
-  game_state = [0, 0, -1, 1, 1, 1, 0, -1, -1]
+  game_state = Array.new(9, 0)
   draw_tic game_state
+  puts "Elegi una opcion"
   puts who_wins?(game_state)
 end
 
