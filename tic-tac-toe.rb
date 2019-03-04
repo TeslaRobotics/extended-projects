@@ -78,7 +78,7 @@ def main
           puts "Elige una opcion:"
           index = gets.chomp.to_i
           break if  game_state[index - 1] == 0
-          puts index > @level**2 ? "Del 1 al #{@level**2}, no sabes leer xd".red : "Maldito bastardo elige bien".red
+          puts index > @level**2 ? "Un numero del 1 al #{@level**2}".red : "Por favor".red
         end
         game_state[index - 1] = 1
         band = false
