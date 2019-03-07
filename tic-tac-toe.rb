@@ -1,20 +1,28 @@
-# this gem injects a color method to the string when it is displayed by console
+=begin
+  colorize gem required to play game
+  gem install colorize
+=end
 require 'colorize' 
 
-@level = 2
+$level = 2
 
-def draw_field(val, index)
-  (val.is_a? Integer) ? (index + 1 < 10 ? " #{val}" : val) : " #{val}"
+def draw_field(cell_content, index)
+  if cell_content.is_a? Integer
+    space = index + 1 < 10 ? " " : "" 
+    return space + cell_content.to_s
+  else
+    return " #{cell_content}"
+  end
 end
 
-def draw_cell(cell, index)
-  return draw_field(index + 1, index).to_s.white if cell == 0
-  return draw_field("O", index).yellow if cell == -1
-  return draw_field("X", index).blue if cell == 1
+def draw_cell(cell_value, index)
+  return draw_field(index + 1, index).to_s.white if cell_value == 0
+  return draw_field("O", index).yellow if cell_value == -1
+  return draw_field("X", index).blue if cell_value == 1
 end
 
 def draw_tic(arr)
-  size_line = 5 * @level + 1
+  size_line = 5 * $level + 1
   line, col = "-".green, "|".green
   border = line * size_line
   total = border
@@ -22,7 +30,7 @@ def draw_tic(arr)
   arr.each_with_index do |cell, index|
     content = draw_cell(cell, index)
     row = row + " #{content} #{col}"
-    if ((index + 1) % @level == 0)
+    if ((index + 1) % $level == 0)
       total = total + "\n" + row + "\n" + border
       row = col
     end
@@ -30,8 +38,10 @@ def draw_tic(arr)
   puts total
 end
 
-def finish_game?(arr)
-  arr.include?(0)
+def finish_game?(game_state)
+  # Initial game_state contain only zeros and final game_state
+  # only contains -1 and 1
+  game_state.include?(0)
 end
 
 def get_index(arr, val)
@@ -39,10 +49,10 @@ def get_index(arr, val)
 end
 
 def who_wins?(g_state)
-  board = [*0..@level**2 -1].each_slice(@level).to_a
+  board = [*0..($level ** 2 - 1)].each_slice($level).to_a
   winConditions = board + board.transpose
-  diag = (0..(board.count - 1)).collect { |i| board[i][i] }
-  diag2 = (0..(board.count - 1)).collect { |i| board.reverse[i][i] }.reverse
+  diag = (0..(board.count - 1)).collect { |cell| board[cell][cell] }
+  diag2 = (0..(board.count - 1)).collect { |cell| board.reverse[cell][cell] }.reverse
   winConditions.push(diag, diag2)
 
   winConditions.each_with_index do |win, index|
@@ -65,12 +75,12 @@ end
 
 def main
   while true
-    game_state = Array.new(@level ** 2, 0)
+    game_state = Array.new($level ** 2, 0)
     band = true
     winner = '-'
     while finish_game?(game_state)
       system "clear"
-      puts "Level #{@level}"
+      puts "Level #{$level}"
       if band
         draw_tic game_state
         index = 0
@@ -78,7 +88,7 @@ def main
           puts "Elige una opcion:"
           index = gets.chomp.to_i
           break if  game_state[index - 1] == 0
-          puts index > @level**2 ? "Un numero del 1 al #{@level**2}".red : "Por favor".red
+          puts index > $level**2 ? "Elige un numero del 1 al #{$level**2}".red : "Opcion repetida".red
         end
         game_state[index - 1] = 1
         band = false
@@ -89,18 +99,21 @@ def main
       winner = who_wins? game_state
       break if winner != '-'
     end
+    system "clear"
+  
     draw_tic game_state
     if (winner == '-')
       puts "Empataste"
     else
       if winner == "x"
         puts "Ganaste tio, alegrate".cyan
-        @level = @level + 1
+        $level = $level + 1
       else
         puts "Acabas de perder con una maquina".red
         break
       end
     end
+    sleep(1.5)
   end
 end
 
